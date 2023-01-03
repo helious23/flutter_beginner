@@ -1,82 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  WebViewController? constroller;
+  final String homeUrl = 'https://blog.codefactory.ai';
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-      bottom: false,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        color: Colors.black,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(
-                  color: Colors.red,
-                  width: 50,
-                  height: 50,
-                ),
-                Container(
-                  color: Colors.orange,
-                  width: 50,
-                  height: 50,
-                ),
-                Container(
-                  color: Colors.yellow,
-                  width: 50,
-                  height: 50,
-                ),
-                Container(
-                  color: Colors.green,
-                  width: 50,
-                  height: 50,
-                ),
-              ],
-            ),
-            Container(
-              color: Colors.orange,
-              width: 50,
-              height: 50,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  color: Colors.red,
-                  width: 50,
-                  height: 50,
-                ),
-                Container(
-                  color: Colors.orange,
-                  width: 50,
-                  height: 50,
-                ),
-                Container(
-                  color: Colors.yellow,
-                  width: 50,
-                  height: 50,
-                ),
-                Container(
-                  color: Colors.green,
-                  width: 50,
-                  height: 50,
-                ),
-              ],
-            ),
-            Container(
-              color: Colors.green,
-              width: 50,
-              height: 50,
-            ),
-          ],
-        ),
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        title: const Text('Code Factory'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (constroller == null) {
+                return;
+              }
+              constroller!.loadUrl(homeUrl);
+            },
+            icon: const Icon(Icons.home),
+          ),
+        ],
       ),
-    ));
+      body: WebView(
+        onWebViewCreated: (WebViewController controller) {
+          constroller = controller;
+        },
+        initialUrl: homeUrl,
+        javascriptMode: JavascriptMode.unrestricted,
+      ),
+    );
   }
 }
