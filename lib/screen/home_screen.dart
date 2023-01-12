@@ -1,158 +1,78 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:splash_screen/components/number_row.dart';
-import 'package:splash_screen/constant/color.dart';
-import 'package:splash_screen/screen/settings_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int maxNumber = 1000;
-  List<int> randomNumbers = [
-    123,
-    456,
-    789,
-  ];
-
-  void onSettingsPop() async {
-    final result = await Navigator.of(context).push<int>(
-      MaterialPageRoute(
-        builder: (BuildContext context) {
-          return SettingsScreen(
-            maxNumber: maxNumber,
-          );
-        },
-      ),
-    );
-
-    if (result != null) {
-      setState(() {
-        maxNumber = result;
-      });
-    }
-  }
-
-  void onRandomNumberGenerate() {
-    final rand = Random();
-    final Set<int> newNumbers = {};
-    while (newNumbers.length != 3) {
-      final number = rand.nextInt(maxNumber);
-      newNumbers.add(number);
-    }
-    setState(() {
-      randomNumbers = newNumbers.toList();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PRIMARY_COLOR,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16.0,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Header(
-                onPressed: onSettingsPop,
+      appBar: AppBar(
+        title: const Text('버튼'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton(
+              onPressed: () {},
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed)) {
+                      return Colors.green;
+                    }
+                    return Colors.grey;
+                  },
+                ),
+                foregroundColor: MaterialStateProperty.resolveWith(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed)) {
+                      return Colors.white;
+                    }
+                    return Colors.red;
+                  },
+                ),
               ),
-              _Body(
-                randomNumbers: randomNumbers,
+              child: const Text('Button Style'),
+            ),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                foregroundColor: Colors.red.shade500,
+                shadowColor: Colors.green,
+                elevation: 10.0,
+                textStyle: const TextStyle(
+                  fontSize: 20.0,
+                ),
+                padding: const EdgeInsets.all(32.0),
+                side: const BorderSide(
+                  color: Colors.black,
+                  width: 2.0,
+                ),
               ),
-              _Footer(onPressed: onRandomNumberGenerate)
-            ],
-          ),
+              child: const Text('ElevatedButton'),
+            ),
+            OutlinedButton(
+              onPressed: () {},
+              style: OutlinedButton.styleFrom(
+                // backgroundColor: Colors.grey.shade300,
+                foregroundColor: Colors.green.shade500,
+              ),
+              child: const Text('OutlinedButton'),
+            ),
+            TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.amber,
+              ),
+              child: const Text('TextButton'),
+            ),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _Header({
-    required this.onPressed,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          '랜덤 숫자 생성기',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 30.0,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        IconButton(
-          onPressed: onPressed,
-          icon: const Icon(Icons.settings),
-          color: RED_COLOR,
-        )
-      ],
-    );
-  }
-}
-
-class _Body extends StatelessWidget {
-  final List<int> randomNumbers;
-
-  const _Body({
-    Key? key,
-    required this.randomNumbers,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: randomNumbers
-            .asMap()
-            .entries
-            .map(
-              (numbers) => Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: numbers.key % 2 == 0 ? 0 : 16.0),
-                  child: NumberRow(
-                    number: numbers.value,
-                  )),
-            )
-            .toList(),
-      ),
-    );
-  }
-}
-
-class _Footer extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _Footer({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: RED_COLOR,
-          ),
-          child: const Text('생성하기')),
     );
   }
 }
