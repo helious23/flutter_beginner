@@ -1,5 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:splash_screen/components/number_row.dart';
+import 'package:splash_screen/constant/color.dart';
+import 'package:splash_screen/screen/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,145 +13,146 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  DateTime selectedDate = DateTime(
-    DateTime.now().year,
-    DateTime.now().month,
-    DateTime.now().day,
-  );
+  int maxNumber = 1000;
+  List<int> randomNumbers = [
+    123,
+    456,
+    789,
+  ];
+
+  void onSettingsPop() async {
+    final result = await Navigator.of(context).push<int>(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return SettingsScreen(
+            maxNumber: maxNumber,
+          );
+        },
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        maxNumber = result;
+      });
+    }
+  }
+
+  void onRandomNumberGenerate() {
+    final rand = Random();
+    final Set<int> newNumbers = {};
+    while (newNumbers.length != 3) {
+      final number = rand.nextInt(maxNumber);
+      newNumbers.add(number);
+    }
+    setState(() {
+      randomNumbers = newNumbers.toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.pink[100],
+      backgroundColor: PRIMARY_COLOR,
       body: SafeArea(
-        bottom: false,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+          ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _TopPart(
-                selectedDate: selectedDate,
-                onPressed: onHeartPressed,
+              _Header(
+                onPressed: onSettingsPop,
               ),
-              const _BottomPart(),
+              _Body(
+                randomNumbers: randomNumbers,
+              ),
+              _Footer(onPressed: onRandomNumberGenerate)
             ],
           ),
         ),
       ),
     );
   }
-
-  void onHeartPressed() {
-    final DateTime now = DateTime.now();
-    showCupertinoDialog(
-      barrierDismissible: true,
-      context: context,
-      builder: (BuildContext context) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            color: Colors.white,
-            height: 300.0,
-            child: CupertinoDatePicker(
-              initialDateTime: selectedDate,
-              maximumDate: DateTime(
-                now.year,
-                now.month,
-                now.day,
-              ),
-              mode: CupertinoDatePickerMode.date,
-              onDateTimeChanged: (DateTime date) {
-                setState(() {
-                  selectedDate = date;
-                });
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
-class _TopPart extends StatelessWidget {
-  final DateTime selectedDate;
+class _Header extends StatelessWidget {
   final VoidCallback onPressed;
-  final DateTime now = DateTime.now();
 
-  _TopPart({
-    required this.selectedDate,
+  const _Header({
     required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          const Text(
-            'U&I',
-            style: TextStyle(
-              fontFamily: 'parisienne',
-              fontSize: 80.0,
-              color: Colors.white,
-            ),
-          ),
-          Column(
-            children: [
-              const Text(
-                '우리 처음 만난날',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'sunflower',
-                  fontSize: 32,
-                ),
-              ),
-              Text(
-                '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}',
-                style: const TextStyle(
-                  fontFamily: 'sunflower',
-                  fontSize: 28,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          IconButton(
-            onPressed: onPressed,
-            iconSize: 64,
-            icon: const Icon(Icons.favorite),
-            color: Colors.red[400],
-          ),
-          Text(
-            'D+${DateTime(
-                  now.year,
-                  now.month,
-                  now.day,
-                ).difference(selectedDate).inDays + 1}',
-            style: const TextStyle(
-                color: Colors.white,
-                fontFamily: 'sunflower',
-                fontWeight: FontWeight.w700,
-                fontSize: 48),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BottomPart extends StatelessWidget {
-  const _BottomPart({
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          '랜덤 숫자 생성기',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 30.0,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        IconButton(
+          onPressed: onPressed,
+          icon: const Icon(Icons.settings),
+          color: RED_COLOR,
+        )
+      ],
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  final List<int> randomNumbers;
+
+  const _Body({
+    Key? key,
+    required this.randomNumbers,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Expanded(
-      child: Image.asset(
-        'asset/img/middle_image.png',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: randomNumbers
+            .asMap()
+            .entries
+            .map(
+              (numbers) => Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: numbers.key % 2 == 0 ? 0 : 16.0),
+                  child: NumberRow(
+                    number: numbers.value,
+                  )),
+            )
+            .toList(),
       ),
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _Footer({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: RED_COLOR,
+          ),
+          child: const Text('생성하기')),
     );
   }
 }
