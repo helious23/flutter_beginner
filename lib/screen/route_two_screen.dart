@@ -27,6 +27,21 @@ class RouteTwoScreen extends StatelessWidget {
             );
           },
           child: const Text('Push Named'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacementNamed('/three');
+          },
+          child: const Text('Push Replacement'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/three',
+              (route) => route.settings.name == '/',
+            );
+          },
+          child: const Text('Push and Remove until'),
         )
       ],
     );
