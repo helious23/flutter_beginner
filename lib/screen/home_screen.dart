@@ -1,55 +1,119 @@
 import 'package:flutter/material.dart';
-import 'package:splash_screen/components/main_layout.dart';
-import 'package:splash_screen/screen/route_one_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:splash_screen/components/custom_video_player.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  XFile? video;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: WillPopScope(
-          onWillPop: () async {
-            // true - pop 가능
-            // false - pop 불가능
-            final canPop = Navigator.of(context).canPop();
-            return canPop;
-          },
-          child: MainLayout(
-            title: 'HomeScreen',
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  print(Navigator.of(context).canPop());
-                },
-                child: const Text('Can Pop'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).maybePop();
-                },
-                child: const Text('Maybe Pop'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Pop'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => const RouteOneScreen(),
-                    ),
-                  );
-                },
-                child: const Text('Push'),
-              ),
-            ],
+      body: video == null ? renderEmpty() : renderVideo(),
+    );
+  }
+
+  Widget renderVideo() {
+    return Center(
+      child: CustomVideoPlayer(
+        video: video!,
+        onNewVideoPressed: onNewVideoPressed,
+      ),
+    );
+  }
+
+  Widget renderEmpty() {
+    return Container(
+      decoration: getBoxDecoration(),
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _Logo(
+            onTap: onNewVideoPressed,
+          ),
+          const SizedBox(height: 32.0),
+          const _AppName(),
+        ],
+      ),
+    );
+  }
+
+  void onNewVideoPressed() async {
+    final video = await ImagePicker().pickVideo(
+      source: ImageSource.gallery,
+    );
+    if (video != null) {
+      setState(() {
+        this.video = video;
+      });
+    }
+  }
+
+  BoxDecoration getBoxDecoration() {
+    return const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Color(0xFF2A3A7C),
+          Color(0xFF000118),
+        ],
+      ),
+    );
+  }
+}
+
+class _AppName extends StatelessWidget {
+  const _AppName({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    const textStyle = TextStyle(
+      color: Colors.white,
+      fontSize: 30.0,
+      fontWeight: FontWeight.w300,
+    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          'VIDEO',
+          style: textStyle,
+        ),
+        Text(
+          'PLAYER',
+          style: textStyle.copyWith(
+            fontWeight: FontWeight.w700,
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _Logo extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _Logo({
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Image.asset(
+        'asset/image/logo.png',
       ),
     );
   }
